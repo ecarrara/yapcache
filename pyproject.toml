@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yapcache"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [{ name = "Erle Carrara", email = "carrara.erle@gmail.com" }]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Framework :: AsyncIO",
+]
+dependencies = ["redis>=5.0,<6", "cachebox>=4.1,<5"]
+
+[project.urls]
+Documentation = "https://github.com/ecarrara/yapcache#readme"
+Issues = "https://github.com/ecarrara/yapcache/issues"
+Source = "https://github.com/ecarrara/yapcache"
+
+[tool.hatch.version]
+path = "src/yapcache/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = ["coverage[toml]>=6.5", "pytest", "ruff"]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = ["- coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.types]
+dependencies = ["mypy>=1.0.0"]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/yapcache tests}"
+
+[tool.coverage.run]
+source_pkgs = ["yapcache", "tests"]
+branch = true
+parallel = true
+omit = ["src/yapcache/__about__.py"]
+
+[tool.coverage.paths]
+yapcache = ["src/yapcache", "*/yapcache/src/yapcache"]
+tests = ["tests", "*/yapcache/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]

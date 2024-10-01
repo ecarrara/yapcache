@@ -1,0 +1,75 @@
+import asyncio
+import functools
+import pickle
+import time
+from dataclasses import dataclass, replace
+from functools import wraps
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Optional,
+    ParamSpec,
+    TypeVar,
+    cast,
+    override,
+)
+
+import cachebox
+from redis.asyncio import Redis
+
+from yapcache.cache_item import CacheItem
+from yapcache.caches import Cache
+from yapcache.distlock import DistLock, NullLock
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def memoize(
+    cache: Cache,
+    cache_key: Callable[P, str],
+    ttl: float,
+    best_before: Callable[[R], Optional[float]] = lambda *a, **kw: None,
+    lock: Callable[[str], DistLock] = lambda *a, **kw: NullLock(),
+) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
+    update_tasks: dict[str, asyncio.Task] = {}
+
+    def decorator(fn: Callable[P, Awaitable[R]]):
+        @wraps(fn)
+        async def wrapper(*args, **kwargs):
+            key = cache_key(*args, **kwargs)
+
+            async def _call_with_lock():
+                async with lock(key + ":lock"):
+                    found = await cache.get(key)
+                    if isinstance(found, CacheItem):
+                        return found.value
+
+                    result = await fn(*args, **kwargs)
+
+                    await cache.set(
+                        key,
+                        value=result,
+                        ttl=ttl,
+                        best_before=best_before(result),
+                    )
+
+                    return result
+
+            found = await cache.get(key)
+            if isinstance(found, CacheItem):
+                if found.is_stale and key not in update_tasks:
+                    task = asyncio.create_task(_call_with_lock())
+                    update_tasks[key] = task  # TODO: acho que tem problema
+                    task.add_done_callback(lambda _: update_tasks.pop(key))
+                return found.value
+
+            result = await _call_with_lock()
+
+            return result
+
+        return wrapper
+
+    return decorator
