@@ -1,23 +1,12 @@
 import asyncio
-import functools
-import pickle
-import time
-from dataclasses import dataclass, replace
 from functools import wraps
 from typing import (
-    Any,
     Awaitable,
     Callable,
-    Coroutine,
     Optional,
     ParamSpec,
     TypeVar,
-    cast,
-    override,
 )
-
-import cachebox
-from redis.asyncio import Redis
 
 from yapcache.cache_item import CacheItem
 from yapcache.caches import Cache
