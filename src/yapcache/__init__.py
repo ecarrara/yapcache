@@ -1,6 +1,7 @@
 import asyncio
 from functools import wraps
-from typing import (
+
+from typing_extensions import (
     Any,
     Awaitable,
     Callable,

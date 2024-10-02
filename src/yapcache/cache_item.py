@@ -1,6 +1,7 @@
 import time
 from dataclasses import dataclass
-from typing import Any
+
+from typing_extensions import Any
 
 
 @dataclass(frozen=True, slots=True, eq=True)

@@ -1,7 +1,7 @@
 from dataclasses import replace
-from typing import Any, override
 
 import cachebox
+from typing_extensions import Any, override
 
 from yapcache.cache_item import NOT_FOUND, CacheItem, NotFound
 from yapcache.caches import Cache

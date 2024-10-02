@@ -1,5 +1,6 @@
 import asyncio
-from typing import Any, Callable, Coroutine, ParamSpec, TypeVar, override
+
+from typing_extensions import Any, Callable, Coroutine, ParamSpec, TypeVar, override
 
 from yapcache import memoize
 from yapcache.cache_item import NOT_FOUND, CacheItem, NotFound

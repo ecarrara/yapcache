@@ -1,5 +1,6 @@
 import pickle
-from typing import override
+
+from typing_extensions import override
 
 from yapcache import CacheItem
 from yapcache.serializers import BaseSerializer

@@ -1,8 +1,8 @@
 import asyncio
 import uuid
-from typing import override
 
 from redis.asyncio import Redis
+from typing_extensions import override
 
 
 class DistLock:
