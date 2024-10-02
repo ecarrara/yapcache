@@ -113,7 +113,7 @@ jobs:
 
   publish-to-testpypi:
     name: Publish to TestPyPI
-    needs: [release]
+    needs: [build]
     runs-on: ubuntu-latest
 
     environment:
