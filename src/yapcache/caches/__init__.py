@@ -2,7 +2,6 @@ import asyncio
 
 from typing_extensions import Any, Callable, Coroutine, ParamSpec, TypeVar, override
 
-from yapcache import memoize
 from yapcache.cache_item import NOT_FOUND, CacheItem, NotFound
 
 P = ParamSpec("P")
@@ -31,6 +30,8 @@ class Cache:
     async def close(self): ...
 
     def memoize[R](self, fn: Callable[..., Coroutine[Any, Any, R]], *args, **kwargs):
+        from yapcache import memoize
+
         return memoize(self, *args, **kwargs)(fn)
 
 
