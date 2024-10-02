@@ -1,8 +1,10 @@
 import asyncio
 from functools import wraps
 from typing import (
+    Any,
     Awaitable,
     Callable,
+    Coroutine,
     Optional,
     ParamSpec,
     TypeVar,
@@ -22,7 +24,9 @@ def memoize(
     ttl: float,
     best_before: Callable[[R], Optional[float]] = lambda *a, **kw: None,
     lock: Callable[[str], DistLock] = lambda *a, **kw: NullLock(),
-) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
+) -> Callable[
+    [Callable[P, Coroutine[Any, Any, R]]], Callable[P, Coroutine[Any, Any, R]]
+]:
     update_tasks: dict[str, asyncio.Task] = {}
 
     def decorator(fn: Callable[P, Awaitable[R]]):

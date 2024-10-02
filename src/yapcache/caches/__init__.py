@@ -1,7 +1,11 @@
 import asyncio
-from typing import Any, override
+from typing import Any, Callable, Coroutine, ParamSpec, TypeVar, override
 
+from yapcache import memoize
 from yapcache.cache_item import NOT_FOUND, CacheItem, NotFound
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 class Cache:
@@ -24,6 +28,9 @@ class Cache:
         raise NotImplementedError
 
     async def close(self): ...
+
+    def memoize[R](self, fn: Callable[..., Coroutine[Any, Any, R]], *args, **kwargs):
+        return memoize(self, *args, **kwargs)(fn)
 
 
 class MultiLayerCache(Cache):
