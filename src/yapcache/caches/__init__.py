@@ -29,7 +29,7 @@ class Cache:
 
     async def close(self): ...
 
-    def memoize[R](self, fn: Callable[..., Coroutine[Any, Any, R]], *args, **kwargs):
+    def memoize(self, fn: Callable[P, Coroutine[Any, Any, R]], *args, **kwargs):
         from yapcache import memoize
 
         return memoize(self, *args, **kwargs)(fn)
