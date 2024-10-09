@@ -9,6 +9,7 @@ from typing_extensions import (
     Optional,
     ParamSpec,
     TypeVar,
+    Concatenate,
 )
 
 from yapcache.cache_item import CacheItem
@@ -22,8 +23,8 @@ R = TypeVar("R")
 def memoize(
     cache: Cache,
     cache_key: Callable[P, str],
-    ttl: float,
-    best_before: Callable[[R], Optional[float]] = lambda *a, **kw: None,
+    ttl: float | Callable[Concatenate[R, P], float],
+    best_before: Callable[Concatenate[R, P], Optional[float]] = lambda *a, **kw: None,
     lock: Callable[[str], DistLock] = lambda *a, **kw: NullLock(),
 ) -> Callable[
     [Callable[P, Coroutine[Any, Any, R]]], Callable[P, Coroutine[Any, Any, R]]
@@ -46,8 +47,8 @@ def memoize(
                     await cache.set(
                         key,
                         value=result,
-                        ttl=ttl,
-                        best_before=best_before(result),
+                        ttl=ttl(result, *args, **kwargs) if callable(ttl) else ttl,
+                        best_before=best_before(result, *args, **kwargs),
                     )
 
                     return result
