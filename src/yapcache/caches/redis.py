@@ -30,7 +30,7 @@ class RedisCache(Cache):
             if ttl == -2:
                 return NOT_FOUND
 
-            if ttl == -1 or ttl:
+            if ttl == -1:
                 ttl = None
 
             value = self.serializer.loads(value)
