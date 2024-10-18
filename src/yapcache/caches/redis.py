@@ -49,5 +49,5 @@ class RedisCache(Cache):
             value=self.serializer.dumps(
                 CacheItem(value=value, best_before=best_before)
             ),
-            ex=int(ttl * 1_000) if ttl is not None else None,
+            px=int(ttl * 1_000) if ttl is not None else None,
         )
