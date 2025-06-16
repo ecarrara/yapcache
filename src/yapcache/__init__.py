@@ -33,7 +33,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-class CacheStatus(Enum, str):
+class CacheStatus(StrEnum):
     HIT = "hit"
     MISS = "miss"
     STALE = "stale"
