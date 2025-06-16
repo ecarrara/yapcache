@@ -1,8 +1,18 @@
+import sys
 import asyncio
 from dataclasses import dataclass
-from enum import StrEnum
 from functools import wraps
 from typing import Generic
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from enum import Enum
+
+    class StrEnum(str, Enum):
+        def __str__(self):
+            return str(self.value)
+
 
 from typing_extensions import (
     Any,
@@ -23,7 +33,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-class CacheStatus(StrEnum):
+class CacheStatus(Enum, str):
     HIT = "hit"
     MISS = "miss"
     STALE = "stale"
@@ -39,7 +49,9 @@ def memoize(
     cache: Cache,
     cache_key: Callable[P, str],
     ttl: float | Callable[Concatenate[R, P], float],
-    best_before: Callable[Concatenate[R, P], Optional[float]] = lambda _, *a, **kw: None,
+    best_before: Callable[Concatenate[R, P], Optional[float]] = lambda _,
+    *a,
+    **kw: None,
     lock: Callable[[str], DistLock] = lambda *a, **kw: NullLock(),
     process_result: Callable[[MemoizeResult[R]], R] = lambda r, *a, **kw: r.result,
 ) -> Callable[
@@ -54,9 +66,13 @@ def memoize(
 
             async def _call_with_lock():
                 async with lock(key + ":lock"):
-                    found = await cache.get(key)   # did someone populate the cache while I was waiting for the lock?
+                    found = await cache.get(
+                        key
+                    )  # did someone populate the cache while I was waiting for the lock?
                     if isinstance(found, CacheItem) and not found.is_stale:
-                        return MemoizeResult(result=found.value, cache_status=CacheStatus.HIT)
+                        return MemoizeResult(
+                            result=found.value, cache_status=CacheStatus.HIT
+                        )
 
                     result = await fn(*args, **kwargs)
 
@@ -78,7 +94,9 @@ def memoize(
                     task.add_done_callback(lambda _: update_tasks.pop(key))
                     status = CacheStatus.STALE
                 return process_result(
-                    MemoizeResult(result=found.value, cache_status=status), *args, **kwargs
+                    MemoizeResult(result=found.value, cache_status=status),
+                    *args,
+                    **kwargs,
                 )
 
             result = await _call_with_lock()
