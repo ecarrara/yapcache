@@ -27,6 +27,9 @@ class Cache:
     ):
         raise NotImplementedError
 
+    async def delete(self, key: str) -> bool:
+        raise NotImplementedError
+
     async def close(self): ...
 
     def memoize(self, fn: Callable[P, Coroutine[Any, Any, R]], *args, **kwargs):

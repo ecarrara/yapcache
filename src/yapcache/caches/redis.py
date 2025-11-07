@@ -51,3 +51,7 @@ class RedisCache(Cache):
             ),
             px=int(ttl * 1_000) if ttl is not None else None,
         )
+
+    @override
+    async def delete(self, key: str) -> bool:
+        return bool(await self._client.delete(self._key(key)))

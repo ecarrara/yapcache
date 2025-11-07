@@ -32,3 +32,7 @@ class InMemoryCache(Cache):
             value=CacheItem(value=value, best_before=best_before, ttl=ttl),
             ttl=ttl,
         )
+    
+    @override
+    async def delete(self, key: str) -> bool:
+        return bool(self._cache.pop(self._key(key), None))

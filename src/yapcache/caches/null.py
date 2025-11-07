@@ -16,3 +16,6 @@ class NullCache(Cache):
         best_before: float | None = None,
     ):
         ... # no-op
+
+    async def delete(self, key: str) -> bool:
+        ... # no-op
