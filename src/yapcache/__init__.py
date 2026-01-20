@@ -91,7 +91,7 @@ def memoize(
                     **kwargs,
                 )
 
-            result = await _call_with_lock()
+            result = await _call_with_lock(*args, **kwargs)
 
             return process_result(result, *args, **kwargs)
 
